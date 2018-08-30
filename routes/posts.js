@@ -3,7 +3,7 @@ const router = express.Router()
 const checkLogin = require('../middlewares/check').checkLogin
 
 router.get('/', function(req, res, next){
-    res.send('主页')
+    res.render('posts')
 })
 
 router.get('/create', checkLogin, function(req, res, next){
