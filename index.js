@@ -80,6 +80,8 @@ app.use(expressWinston.errorLogger({
     ]
 }))
 
+// 注意：记录正常请求日志的中间件要放到 routes(app) 之前，记录错误请求日志的中间件要放到 routes(app) 之后。
+
 app.use(function(err, req, res, next){
     console.log(err)
     req.flash('error', err.message)
