@@ -7,8 +7,14 @@ const checkLogin = require('../middlewares/check').checkLogin
 
 router.get('/', function(req, res, next){
     const author = req.query.author
+    let hide = false
+    if(author){
+        if(req.session.user._id.toString() === author.toString()){
+            hide = true
+        }
+    }
 
-    PostModel.getPosts(author)
+    PostModel.getPosts(author, hide)
         .then(function(posts){
             res.render('posts', {
                 posts: posts
@@ -24,6 +30,7 @@ router.get('/create', checkLogin, function(req, res, next){
 router.post('/create', checkLogin, function(req, res, next){
     const author = req.session.user._id
     const title = req.fields.title
+    const hide = parseInt(req.fields.hide)
     const content = req. fields.content
 
     try{
@@ -41,6 +48,7 @@ router.post('/create', checkLogin, function(req, res, next){
     let post = {
         author: author,
         title: title,
+        hide: hide,
         content: content
     }
 
@@ -66,6 +74,9 @@ router.get('/:postId', function(req, res, next){
         const comments = result[1]
         if(!post){
             throw new Error('该文章不存在')
+        }
+        if(post.author._id.toString() !== req.session.user._id.toString()){
+            throw new Error('该文章已隐藏，没有权限查看')
         }
 
         res.render('post', {
@@ -99,6 +110,7 @@ router.post('/:postId/edit', checkLogin, function(req, res, next){
     const postId = req.params.postId
     const author = req.session.user._id
     const title = req.fields.title
+    const hide = parseInt(req.fields.hide)
     const content = req.fields.content
 
     try{
@@ -121,7 +133,7 @@ router.post('/:postId/edit', checkLogin, function(req, res, next){
             if(post.author._id.toString() !== author.toString()){
                 throw new Error('没有权限')
             }
-            PostModel.updatePostById(postId, {title: title, content: content})
+            PostModel.updatePostById(postId, {title: title, hide: hide, content: content})
                 .then(function(){
                     req.flash('success', '编辑文章成功')
                     res.redirect(`/posts/${postId}`)
@@ -148,6 +160,36 @@ router.get('/:postId/remove', checkLogin, function(req, res, next){
                     res.redirect('/posts')
                 })
                 .catch(next)
+        })
+})
+
+router.get('/:postId/hide', checkLogin, function(req, res, next){
+    const postId = req.params.postId
+    const author = req.session.user._id
+
+    PostModel.getPostById(postId)
+        .then(function(post){
+            if(!post){
+                throw new Error('文章不存在')
+            }
+            if(post.author._id.toString() !== author.toString()){
+                throw new Error('没有权限')
+            }
+            if(post.hide === 0){
+                PostModel.updatePostById(postId, {hide: 1})
+                    .then(function(){
+                        req.flash('success', '文章已隐藏')
+                        res.redirect('back')
+                    })
+                    .catch(next)
+            }else if(post.hide === 1){
+                PostModel.updatePostById(postId, {hide: 0})
+                    .then(function(){
+                        req.flash('success', '文章已显示')
+                        res.redirect('back')
+                    })
+                    .catch(next)
+            }
         })
 })
 
