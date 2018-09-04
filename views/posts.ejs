@@ -3,5 +3,6 @@
 <% posts.forEach(function(post){ %>
     <%- include('components/post-content', {post: post}) %>
 <% }) %>
+<%- include('components/pagination', {pages: pages, page: page, rows: rows}) %>
 
 <%- include('footer') %>

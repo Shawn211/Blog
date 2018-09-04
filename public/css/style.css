@@ -76,3 +76,14 @@ a:hover {
 .post-content .tag.right a {
     color: #999;
 }
+
+/* ---------- pagination ---------- */
+
+.pagination {
+    text-align: center;
+}
+
+.pagination li {
+    display: inline;
+    margin-right: 21px;
+}

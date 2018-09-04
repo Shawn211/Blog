@@ -7,6 +7,8 @@ const checkLogin = require('../middlewares/check').checkLogin
 
 router.get('/', function(req, res, next){
     const author = req.query.author
+    var page = parseInt(req.query.page  || 1)
+    var rows = parseInt(req.query.rows || 10)
     let hide = false
     if(author){
         if(req.session.user._id.toString() === author.toString()){
@@ -16,8 +18,12 @@ router.get('/', function(req, res, next){
 
     PostModel.getPosts(author, hide)
         .then(function(posts){
+            var pages = Math.ceil(posts.length/rows)
             res.render('posts', {
-                posts: posts
+                posts: posts.slice((page-1)*rows, page*rows),
+                pages: pages,
+                page: page,
+                rows: rows,
             })
         })
         .catch(next)
