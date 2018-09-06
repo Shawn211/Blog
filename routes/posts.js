@@ -12,7 +12,7 @@ router.get('/', function(req, res, next){
     var rows = parseInt(req.query.rows || 10)
     let hide = false
     if(author){
-        if(req.session.user._id.toString() === author.toString()){
+        if(req.session.user && req.session.user._id.toString() === author.toString()){
             hide = true
         }
     }
@@ -122,7 +122,7 @@ router.get('/:postId', function(req, res, next){
         if(!post){
             throw new Error('该文章不存在')
         }
-        if(post.author._id.toString() !== req.session.user._id.toString()){
+        if(req.session.user && post.author._id.toString() !== req.session.user._id.toString()){
             throw new Error('该文章已隐藏，没有权限查看')
         }
 

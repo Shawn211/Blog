@@ -11,6 +11,11 @@ a:hover {
     border-bottom: 3px solid #4fc08d;
 }
 
+.comments p {
+    color: #4fc08d;
+    text-align: center;
+}
+
 .button {
     background-color: #4fc08d !important;
     color: #fff !important;
