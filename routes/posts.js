@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
+const UserModel = require('../models/users')
 const PostModel = require('../models/posts')
 const CommentModel = require('../models/comments')
 const checkLogin = require('../middlewares/check').checkLogin
@@ -195,6 +196,53 @@ router.get('/:postId/hide', checkLogin, function(req, res, next){
                         res.redirect('back')
                     })
                     .catch(next)
+            }
+        })
+})
+
+router.get('/:postId/favour', checkLogin, function(req, res, next){
+    const postId = req.params.postId
+    const name = req.session.user.name
+
+    PostModel.getPostById(postId)
+        .then(function(post){
+            if(!post){
+                throw new Error('文章不存在')
+            }
+            if(post.favourite.indexOf(name) === -1){
+                post.favourite.push(name)
+                let postFavourite = post.favourite
+                UserModel.getUserByName(name)
+                    .then(function(user){
+                        user.favourite.push(postId)
+                        let userFavourite = user.favourite
+                        Promise.all([
+                            PostModel.updatePostById(postId, {favourite: postFavourite}),
+                            UserModel.updateUserByName(name, {favourite: userFavourite})
+                        ])
+                        .then(function(){
+                            req.flash('success', '收藏成功')
+                            res.redirect('back')
+                        })
+                        .catch(next)
+                    })
+            }else{
+                post.favourite.splice(post.favourite.indexOf(name), 1)
+                let postFavourite = post.favourite
+                UserModel.getUserByName(name)
+                    .then(function(user){
+                        user.favourite.splice(user.favourite.indexOf(postId), 1)
+                        let userFavourite = user.favourite
+                        Promise.all([
+                            PostModel.updatePostById(postId, {favourite: postFavourite}),
+                            UserModel.updateUserByName(name, {favourite: userFavourite})
+                        ])
+                        .then(function(){
+                            req.flash('success', '取消收藏')
+                            res.redirect('back')
+                        })
+                        .catch(next)
+                    })
             }
         })
 })

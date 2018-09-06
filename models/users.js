@@ -10,5 +10,9 @@ module.exports = {
             .findOne({name: name})
             .addCreatedAt()
             .exec()
+    },
+
+    updateUserByName: function updateUserByName(name, data){
+        return User.update({name: name}, {$set: data}).exec()
     }
 }
