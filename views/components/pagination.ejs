@@ -3,7 +3,7 @@
     <div class="eight wide colum">
         <ul>
             <% if(page !== 1){ %>
-                <li><a href="/posts?page=<%= page-1 %>&&rows=<%= rows %>">上一页</a></li>
+                <li><a href="/<%= type %>?page=<%= page-1 %>&&rows=<%= rows %>">上一页</a></li>
             <% }else{ %>
                 <li>上一页</li>
             <% } %>
@@ -15,7 +15,7 @@
                     <% if(i === page){ %>
                         <li><%= i %></li>
                     <% }else{ %>
-                        <li><a href="/posts?page=<%= i %>&&rows=<%= rows %>"><%= i %></a></li>
+                        <li><a href="/<%= type %>?page=<%= i %>&&rows=<%= rows %>"><%= i %></a></li>
                     <% } %>
                 <% } %>
             <% }else if(page <= 3){ %>
@@ -23,7 +23,7 @@
                     <% if(i === page){ %>
                         <li><%= i %></li>
                     <% }else{ %>
-                        <li><a href="/posts?page=<%= i %>&&rows=<%= rows %>"><%= i %></a></li>
+                        <li><a href="/<%= type %>?page=<%= i %>&&rows=<%= rows %>"><%= i %></a></li>
                     <% } %>
                 <% } %>
                 <% if(page < pages-2){ %>
@@ -37,7 +37,7 @@
                     <% if(i === page){ %>
                         <li><%= i %></li>
                     <% }else{ %>
-                        <li><a href="/posts?page=<%= i %>&&rows=<%= rows %>"><%= i %></a></li>
+                        <li><a href="/<%= type %>?page=<%= i %>&&rows=<%= rows %>"><%= i %></a></li>
                     <% } %>
                 <% } %>
             <% }else if(pages > page+2){ %>
@@ -48,14 +48,14 @@
                     <% if(i === page){ %>
                         <li><%= i %></li>
                     <% }else{ %>
-                        <li><a href="/posts?page=<%= i %>&&rows=<%= rows %>"><%= i %></a></li>
+                        <li><a href="/<%= type %>?page=<%= i %>&&rows=<%= rows %>"><%= i %></a></li>
                     <% } %>
                 <% } %>
                 <li>...</li>
             <% } %>
         
             <% if(page < pages){ %>
-                <li><a href="/posts?page=<%= page+1 %>&&rows=<%= rows %>">下一页</a></li>
+                <li><a href="/<%= type %>?page=<%= page+1 %>&&rows=<%= rows %>">下一页</a></li>
             <% }else{ %>
                 <li>下一页</li>
             <% } %>

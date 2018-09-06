@@ -25,6 +25,7 @@ router.get('/', function(req, res, next){
                 pages: pages,
                 page: page,
                 rows: rows,
+                type: 'posts'
             })
         })
         .catch(next)
@@ -66,6 +67,45 @@ router.post('/create', checkLogin, function(req, res, next){
             res.redirect(`/posts/${post._id}`)
         })
         .catch(next)
+})
+
+router.get('/favourite', function(req, res, next){
+    const name = req.session.user.name
+    var page = parseInt(req.query.page  || 1)
+    var rows = parseInt(req.query.rows || 10)
+    let posts = []
+
+    UserModel.getUserByName(name)
+        .then(function(user){
+            const favourite = user.favourite
+            if(favourite.length === 0){
+                req.flash('error', '无收藏文章')
+                // 当无收藏文章时，会自动重定位回上一个页面，而上一个页面为收藏页面时，会陷入无限重定位
+                if(req.originalUrl === '/posts/favourite'){
+                    return res.redirect('/posts')
+                }
+                return res.redirect('back')
+            }else{
+                var pages = Math.ceil(favourite.length/rows)
+            }
+            favourite.forEach(function(postId){
+                PostModel.getPostById(postId)
+                    .then(function(post){
+                        posts.push(post)
+                        // forEach 内异步操作可以利用判断是否执行完成再进行下一步操作
+                        if(posts.length === favourite.length){
+                            res.render('posts', {
+                                posts: posts.slice((page-1)*rows, page*rows),
+                                pages: pages,
+                                page: page,
+                                rows: rows,
+                                type: 'favourite'
+                            })
+                        }
+                    })
+                    .catch(next)
+            })
+        })
 })
 
 router.get('/:postId', function(req, res, next){
