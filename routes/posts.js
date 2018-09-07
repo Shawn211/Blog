@@ -15,20 +15,32 @@ router.get('/', function(req, res, next){
         if(req.session.user && req.session.user._id.toString() === author.toString()){
             hide = true
         }
-    }
-
-    PostModel.getPosts(author, hide)
-        .then(function(posts){
-            var pages = Math.ceil(posts.length/rows)
-            res.render('posts', {
-                posts: posts.slice((page-1)*rows, page*rows),
-                pages: pages,
-                page: page,
-                rows: rows,
-                type: 'posts'
+        PostModel.getPosts(author, hide)
+            .then(function(posts){
+                var pages = Math.ceil(posts.length/rows)
+                res.render('myposts', {
+                    posts: posts.slice((page-1)*rows, page*rows),
+                    pages: pages,
+                    page: page,
+                    rows: rows,
+                    type: 'posts'
+                })
             })
-        })
-        .catch(next)
+            .catch(next)
+    }else{
+        PostModel.getPosts(author, hide)
+            .then(function(posts){
+                var pages = Math.ceil(posts.length/rows)
+                res.render('posts', {
+                    posts: posts.slice((page-1)*rows, page*rows),
+                    pages: pages,
+                    page: page,
+                    rows: rows,
+                    type: 'posts'
+                })
+            })
+            .catch(next)
+    }
 })
 
 router.get('/create', checkLogin, function(req, res, next){

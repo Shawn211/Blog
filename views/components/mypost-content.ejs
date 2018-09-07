@@ -1,14 +1,6 @@
 <div class="post-content">
     <div class="ui grid">
-        <div class="four wide column">
-            <a class="avatar avatar-link"
-               href="/posts?author=<%= post.author._id %>"
-               data-title="<%= post.author.name %> | <%= ({m: '男', f: '女', x: '保密'})[post.author.gender] %>"
-               data-content="<%= post.author.bio %>">
-                <img class="avatar" src="/img/<%= post.author.avatar %>">
-            </a>
-        </div>
-
+        <div class="four wide column"></div>
         <div class="eight wide column">
             <div class="ui segment">
                 <h3>
@@ -16,7 +8,7 @@
                     <% if(!user || post.favourite.indexOf(user.name) === -1){ %>
                         <a href="/posts/<%= post._id %>/favour"><i class="black empty heart icon link"></i></a>
                     <% }else{ %>
-                        <a href="/posts/<%= post._id %>/favour"><i class="red heart icon link"></i></a>
+                        <a href="/posts/<%= post._id %>/favour"><i class="red heart icon link" style="float:right"></i></a>
                     <% } %>
                 </h3>
                 <pre><%- post.content %></pre>

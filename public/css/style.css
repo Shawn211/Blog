@@ -96,3 +96,14 @@ a:hover {
     display: inline;
     margin-right: 21px;
 }
+
+/* ---------- myavatar ---------- */
+
+.myavatar {
+    position: absolute;
+}
+
+.myavatar img {
+    width: 211px;
+    height: 211px;
+}

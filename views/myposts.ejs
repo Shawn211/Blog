@@ -1,0 +1,10 @@
+<%- include('header') %>
+
+<%- include('components/myavatar') %>
+
+<% posts.forEach(function(post){ %>
+    <%- include('components/mypost-content', {post: post}) %>
+<% }) %>
+<%- include('components/pagination', {pages: pages, page: page, rows: rows, type: type}) %>
+
+<%- include('footer') %>
