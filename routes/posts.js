@@ -227,6 +227,7 @@ router.get('/favourite', function(req, res, next){
 
 router.get('/:postId', function(req, res, next){
     const postId = req.params.postId
+    var favouritePostsId = []
 
     Promise.all([
         PostModel.getPostById(postId),
@@ -243,10 +244,35 @@ router.get('/:postId', function(req, res, next){
             throw new Error('该文章已隐藏，没有权限查看')
         }
 
-        res.render('post', {
-            post: post,
-            comments: comments
-        })
+        if(!req.session.user){
+            res.render('post', {
+                post: post,
+                comments: comments,
+                favouritePostsId: favouritePostsId
+            })
+        }else{
+            FavouriteModel.getFavourites(req.session.user.name, postId)
+                .then(function(favourites){
+                    if(favourites.length === 0){
+                        res.render('post', {
+                            post: post,
+                            comments: comments,
+                            favouritePostsId: favouritePostsId
+                        })
+                    }else{
+                        favourites.forEach(function(favourite){
+                            favouritePostsId.push(favourite.postId.toString())
+                            if(favouritePostsId.length() === favourites.length){
+                                res.render('post', {
+                                    post: post,
+                                    comments: comments,
+                                    favouritePostsId: favouritePostsId
+                                })
+                            }
+                        })
+                    }
+                })
+        }
     })
     .catch(next)
 })
