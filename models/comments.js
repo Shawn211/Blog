@@ -23,10 +23,6 @@ module.exports = {
         return Comment.deleteOne({_id: commentId}).exec()
     },
 
-    delCOmmentByPostId: function delCOmmentByPostId(postId){
-        return Comment.deleteMany({postId: postId}).exec()
-    },
-
     getComments: function getComments(postId){
         return Comment
             .find({postId: postId})

@@ -1,9 +1,9 @@
 <%- include('header') %>
 
-<%- include('components/myavatar') %>
+<%- include('components/myavatar', {avatar: avatar}) %>
 
 <% posts.forEach(function(post){ %>
-    <%- include('components/mypost-content', {post: post}) %>
+    <%- include('components/mypost-content', {post: post, favouritePostsId: favouritePostsId}) %>
 <% }) %>
 <%- include('components/pagination', {pages: pages, page: page, rows: rows, type: type}) %>
 

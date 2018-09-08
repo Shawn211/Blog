@@ -5,7 +5,7 @@
             <div class="ui segment">
                 <h3>
                     <a href="/posts/<%= post._id %>"><%= post.title %></a>
-                    <% if(!user || post.favourite.indexOf(user.name) === -1){ %>
+                    <% if(!user || favouritePostsId.indexOf(post._id.toString()) === -1){ %>
                         <a href="/posts/<%= post._id %>/favour"><i class="black empty heart icon link"></i></a>
                     <% }else{ %>
                         <a href="/posts/<%= post._id %>/favour"><i class="red heart icon link" style="float:right"></i></a>

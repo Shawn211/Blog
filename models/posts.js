@@ -56,12 +56,8 @@ module.exports = {
 
     getPosts: function getPosts(author, hide){
         const query = {}
-        if(author){
-            query.author = author
-        }
-        if(!hide){
-            query.hide = 0
-        }
+        if(author){query.author = author}
+        if(!hide){query.hide = 0}
         return Post
             .find(query)
             .populate({path: 'author', model: 'User'})

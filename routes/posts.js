@@ -4,6 +4,7 @@ const router = express.Router()
 const UserModel = require('../models/users')
 const PostModel = require('../models/posts')
 const CommentModel = require('../models/comments')
+const FavouriteModel = require('../models/favourites')
 const checkLogin = require('../middlewares/check').checkLogin
 
 router.get('/', function(req, res, next){
@@ -11,33 +12,103 @@ router.get('/', function(req, res, next){
     var page = parseInt(req.query.page  || 1)
     var rows = parseInt(req.query.rows || 10)
     let hide = false
+    var favouritePostsId = []
+    var postId
     if(author){
         if(req.session.user && req.session.user._id.toString() === author.toString()){
             hide = true
         }
-        PostModel.getPosts(author, hide)
-            .then(function(posts){
-                var pages = Math.ceil(posts.length/rows)
-                res.render('myposts', {
-                    posts: posts.slice((page-1)*rows, page*rows),
-                    pages: pages,
-                    page: page,
-                    rows: rows,
-                    type: 'posts'
-                })
+        UserModel.getUserById(author)
+            .then(function(user){
+                PostModel.getPosts(author, hide)
+                    .then(function(posts){
+                        var pages = Math.ceil(posts.length/rows)
+                        if(!req.session.user){
+                            res.render('myposts', {
+                                posts: posts.slice((page-1)*rows, page*rows),
+                                pages: pages,
+                                page: page,
+                                rows: rows,
+                                avatar: user.avatar,
+                                type: 'posts',
+                                favouritePostsId: favouritePostsId
+                            })
+                        }else{
+                            FavouriteModel.getFavourites(req.session.user.name, postId)
+                                .then(function(favourites){
+                                    if(favourites.length === 0){
+                                        res.render('myposts', {
+                                            posts: posts.slice((page-1)*rows, page*rows),
+                                            pages: pages,
+                                            page: page,
+                                            rows: rows,
+                                            avatar: user.avatar,
+                                            type: 'posts',
+                                            favouritePostsId: favouritePostsId
+                                        })
+                                    }else{
+                                        favourites.forEach(function(favourite){
+                                            favouritePostsId.push(favourite.postId.toString())
+                                            if(favouritePostsId.length === favourites.length){
+                                                res.render('myposts', {
+                                                    posts: posts.slice((page-1)*rows, page*rows),
+                                                    pages: pages,
+                                                    page: page,
+                                                    rows: rows,
+                                                    avatar: user.avatar,
+                                                    type: 'posts',
+                                                    favouritePostsId: favouritePostsId
+                                                })
+                                            }
+                                        })
+                                    }
+                                })
+                        }
+                    })
+                    .catch(next)
             })
-            .catch(next)
     }else{
         PostModel.getPosts(author, hide)
             .then(function(posts){
                 var pages = Math.ceil(posts.length/rows)
-                res.render('posts', {
-                    posts: posts.slice((page-1)*rows, page*rows),
-                    pages: pages,
-                    page: page,
-                    rows: rows,
-                    type: 'posts'
-                })
+                if(!req.session.user){
+                    res.render('posts', {
+                        posts: posts.slice((page-1)*rows, page*rows),
+                        pages: pages,
+                        page: page,
+                        rows: rows,
+                        type: 'posts',
+                        favouritePostsId: favouritePostsId
+                    })
+                }else{
+                    FavouriteModel.getFavourites(req.session.user.name, postId)
+                        .then(function(favourites){
+                            if(favourites.length === 0){
+                                res.render('posts', {
+                                    posts: posts.slice((page-1)*rows, page*rows),
+                                    pages: pages,
+                                    page: page,
+                                    rows: rows,
+                                    type: 'posts',
+                                    favouritePostsId: favouritePostsId
+                                })
+                            }else{
+                                favourites.forEach(function(favourite){
+                                    favouritePostsId.push(favourite.postId.toString())
+                                    if(favouritePostsId.length === favourites.length){
+                                        res.render('posts', {
+                                            posts: posts.slice((page-1)*rows, page*rows),
+                                            pages: pages,
+                                            page: page,
+                                            rows: rows,
+                                            type: 'posts',
+                                            favouritePostsId: favouritePostsId
+                                        })
+                                    }
+                                })
+                            }
+                        })
+                }
             })
             .catch(next)
     }
@@ -83,41 +154,75 @@ router.post('/create', checkLogin, function(req, res, next){
 
 router.get('/favourite', function(req, res, next){
     const name = req.session.user.name
+    var postId
     var page = parseInt(req.query.page  || 1)
     var rows = parseInt(req.query.rows || 10)
     let posts = []
+    let favouritePostsId = []
 
-    UserModel.getUserByName(name)
-        .then(function(user){
-            const favourite = user.favourite
-            if(favourite.length === 0){
+    FavouriteModel.getFavourites(name, postId)
+        .then(function(favourites){
+            if(favourites.length === 0){
                 req.flash('error', '无收藏文章')
                 // 当无收藏文章时，会自动重定位回上一个页面，而上一个页面为收藏页面时，会陷入无限重定位
                 if(req.originalUrl === '/posts/favourite'){
                     return res.redirect('/posts')
                 }
                 return res.redirect('back')
-            }else{
-                var pages = Math.ceil(favourite.length/rows)
             }
-            favourite.forEach(function(postId){
-                PostModel.getPostById(postId)
+            let pages = Math.ceil(favourites.length/rows)
+            favourites.forEach(function(favourite){
+                favouritePostsId.push(favourite.postId.toString())
+                PostModel.getPostById(favourite.postId)
                     .then(function(post){
                         posts.push(post)
                         // forEach 内异步操作可以利用判断是否执行完成再进行下一步操作
-                        if(posts.length === favourite.length){
+                        if(posts.length === favourites.length){
                             res.render('posts', {
                                 posts: posts.slice((page-1)*rows, page*rows),
                                 pages: pages,
                                 page: page,
                                 rows: rows,
-                                type: 'favourite'
+                                type: 'favourite',
+                                favouritePostsId: favouritePostsId
                             })
                         }
                     })
                     .catch(next)
             })
         })
+
+    // UserModel.getUserByName(name)
+    //     .then(function(user){
+    //         const favourite = user.favourite
+    //         if(favourite.length === 0){
+    //             req.flash('error', '无收藏文章')
+    //             // 当无收藏文章时，会自动重定位回上一个页面，而上一个页面为收藏页面时，会陷入无限重定位
+    //             if(req.originalUrl === '/posts/favourite'){
+    //                 return res.redirect('/posts')
+    //             }
+    //             return res.redirect('back')
+    //         }else{
+    //             var pages = Math.ceil(favourite.length/rows)
+    //         }
+    //         favourite.forEach(function(postId){
+    //             PostModel.getPostById(postId)
+    //                 .then(function(post){
+    //                     posts.push(post)
+    //                     // forEach 内异步操作可以利用判断是否执行完成再进行下一步操作
+    //                     if(posts.length === favourite.length){
+    //                         res.render('posts', {
+    //                             posts: posts.slice((page-1)*rows, page*rows),
+    //                             pages: pages,
+    //                             page: page,
+    //                             rows: rows,
+    //                             type: 'favourite'
+    //                         })
+    //                     }
+    //                 })
+    //                 .catch(next)
+    //         })
+    //     })
 })
 
 router.get('/:postId', function(req, res, next){
@@ -256,47 +361,70 @@ router.get('/:postId/favour', checkLogin, function(req, res, next){
     const postId = req.params.postId
     const name = req.session.user.name
 
-    PostModel.getPostById(postId)
-        .then(function(post){
-            if(!post){
-                throw new Error('文章不存在')
-            }
-            if(post.favourite.indexOf(name) === -1){
-                post.favourite.push(name)
-                let postFavourite = post.favourite
-                UserModel.getUserByName(name)
-                    .then(function(user){
-                        user.favourite.push(postId)
-                        let userFavourite = user.favourite
-                        Promise.all([
-                            PostModel.updatePostById(postId, {favourite: postFavourite}),
-                            UserModel.updateUserByName(name, {favourite: userFavourite})
-                        ])
-                        .then(function(){
-                            req.flash('success', '收藏成功')
-                            res.redirect('back')
-                        })
-                        .catch(next)
+    FavouriteModel.getFavourites(name, postId)
+        .then(function(favourites){
+            if(favourites.length === 0){
+                let favourite = {
+                    name: name,
+                    postId: postId
+                }
+                FavouriteModel.create(favourite)
+                    .then(function(){
+                        req.flash('success', '收藏成功')
+                        res.redirect('back')
                     })
+                    .catch(next)
             }else{
-                post.favourite.splice(post.favourite.indexOf(name), 1)
-                let postFavourite = post.favourite
-                UserModel.getUserByName(name)
-                    .then(function(user){
-                        user.favourite.splice(user.favourite.indexOf(postId), 1)
-                        let userFavourite = user.favourite
-                        Promise.all([
-                            PostModel.updatePostById(postId, {favourite: postFavourite}),
-                            UserModel.updateUserByName(name, {favourite: userFavourite})
-                        ])
-                        .then(function(){
-                            req.flash('success', '取消收藏')
-                            res.redirect('back')
-                        })
-                        .catch(next)
+                FavouriteModel.delFavouriteById(favourites[0]._id)
+                    .then(function(){
+                        req.flash('success', '取消收藏')
+                        res.redirect('back')
                     })
+                    .catch(next)
             }
         })
+
+    // PostModel.getPostById(postId)
+    //     .then(function(post){
+    //         if(!post){
+    //             throw new Error('文章不存在')
+    //         }
+    //         if(post.favourite.indexOf(name) === -1){
+    //             post.favourite.push(name)
+    //             let postFavourite = post.favourite
+    //             UserModel.getUserByName(name)
+    //                 .then(function(user){
+    //                     user.favourite.push(postId)
+    //                     let userFavourite = user.favourite
+    //                     Promise.all([
+    //                         PostModel.updatePostById(postId, {favourite: postFavourite}),
+    //                         UserModel.updateUserByName(name, {favourite: userFavourite})
+    //                     ])
+    //                     .then(function(){
+    //                         req.flash('success', '收藏成功')
+    //                         res.redirect('back')
+    //                     })
+    //                     .catch(next)
+    //                 })
+    //         }else{
+    //             post.favourite.splice(post.favourite.indexOf(name), 1)
+    //             let postFavourite = post.favourite
+    //             UserModel.getUserByName(name)
+    //                 .then(function(user){
+    //                     user.favourite.splice(user.favourite.indexOf(postId), 1)
+    //                     let userFavourite = user.favourite
+    //                     Promise.all([
+    //                         PostModel.updatePostById(postId, {favourite: postFavourite}),
+    //                         UserModel.updateUserByName(name, {favourite: userFavourite})
+    //                     ])
+    //                     .then(function(){
+    //                         req.flash('success', '取消收藏')
+    //                         res.redirect('back')
+    //                     })
+    //                     .catch(next)
+    //                 })
+    //         }
+    //     })
 })
 
 module.exports = router

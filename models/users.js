@@ -12,6 +12,13 @@ module.exports = {
             .exec()
     },
 
+    getUserById: function getUserById(id){
+        return User
+            .findOne({_id: id})
+            .addCreatedAt()
+            .exec()
+    },
+
     updateUserByName: function updateUserByName(name, data){
         return User.update({name: name}, {$set: data}).exec()
     }
