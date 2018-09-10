@@ -1,12 +1,17 @@
 <div class="myavatar">
     <div class="ui grid">
-        <div class="four wide column">
-            <img src="/img/<%= avatar %>">
-            <div class="ui animated fade button" tabindex="0">
-                <div class="visible content">Follow</div>
-                <div class="hidden content"><i class="child icon"></i></div>
-            </div>
+        <div class="avatar">
+            <img src="/img/<%= author.avatar %>">
+            <h3><%= author.name %> | <%= ({m: '男', f: '女', x: '保密'})[author.gender] %></h3>
+            <p><%= author.bio %></p>
+            <% if(user._id.toString() === author._id.toString()){ %>
+                <div class="ui animated fade button" tabindex="0">
+                    <a href="/users/<%= author._id %>/edit">
+                        <div class="visible content">编辑资料</div>
+                        <div class="hidden content"><i class="setting icon"></i></div>
+                    </a>
+                </div>
+            <% } %>
         </div>
-        <div class="eight wide column"></div>
     </div>
 </div>

@@ -29,7 +29,7 @@ router.get('/', function(req, res, next){
                                 pages: pages,
                                 page: page,
                                 rows: rows,
-                                avatar: user.avatar,
+                                author: user,  // 若这里是 user ，则向 ejs 模板传递值时，会覆盖 session 里的 user ，所以命名为 author
                                 type: 'posts',
                                 favouritePostsId: favouritePostsId
                             })
@@ -42,7 +42,7 @@ router.get('/', function(req, res, next){
                                             pages: pages,
                                             page: page,
                                             rows: rows,
-                                            avatar: user.avatar,
+                                            author: user,
                                             type: 'posts',
                                             favouritePostsId: favouritePostsId
                                         })
@@ -55,7 +55,7 @@ router.get('/', function(req, res, next){
                                                     pages: pages,
                                                     page: page,
                                                     rows: rows,
-                                                    avatar: user.avatar,
+                                                    author: user,
                                                     type: 'posts',
                                                     favouritePostsId: favouritePostsId
                                                 })
@@ -262,7 +262,7 @@ router.get('/:postId', function(req, res, next){
                     }else{
                         favourites.forEach(function(favourite){
                             favouritePostsId.push(favourite.postId.toString())
-                            if(favouritePostsId.length() === favourites.length){
+                            if(favouritePostsId.length === favourites.length){
                                 res.render('post', {
                                     post: post,
                                     comments: comments,

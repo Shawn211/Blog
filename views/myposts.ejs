@@ -1,6 +1,6 @@
 <%- include('header') %>
 
-<%- include('components/myavatar', {avatar: avatar}) %>
+<%- include('components/myavatar', {author: author}) %>
 
 <% posts.forEach(function(post){ %>
     <%- include('components/mypost-content', {post: post, favouritePostsId: favouritePostsId}) %>

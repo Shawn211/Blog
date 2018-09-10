@@ -63,6 +63,14 @@ a:hover {
 
 /* ---------- post-content ---------- */
 
+.post-content .four.wide.column a {
+    border-bottom: 0;
+}
+
+.post-content a img {
+    border-radius: 50%;
+}
+
 .post-content h3 a {
     color: #4fc08d !important;
 }
@@ -103,7 +111,20 @@ a:hover {
     position: absolute;
 }
 
+.myavatar .avatar {
+    width: 100%;
+}
+
+.myavatar .avatar h3 {
+    margin: 6px 0;
+}
+
+.myavatar .avatar p {
+    margin: 6px 0;
+}
+
 .myavatar img {
     width: 211px;
     height: 211px;
+    border-radius: 11%;
 }

@@ -7,6 +7,7 @@ module.exports = function(app){
     app.use('/signout', require('./signout'))
     app.use('/posts', require('./posts'))
     app.use('/comments', require('./comments'))
+    app.use('/users', require('./users'))
 
     app.use(function(req, res){
         if(!req.headerSend){
