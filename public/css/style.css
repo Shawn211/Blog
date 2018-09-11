@@ -128,3 +128,7 @@ a:hover {
     height: 211px;
     border-radius: 11%;
 }
+
+.myavatar a {
+    color: #fff !important;
+}

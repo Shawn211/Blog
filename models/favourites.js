@@ -19,5 +19,9 @@ module.exports = {
             .sort({_id: -1})
             .addCreatedAt()
             .exec()
+    },
+
+    getFavouritesCount: function getFavouritesCount(postId){
+        return Favourite.count({postId: postId}).exec()
     }
 }

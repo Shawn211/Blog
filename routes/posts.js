@@ -152,7 +152,7 @@ router.post('/create', checkLogin, function(req, res, next){
         .catch(next)
 })
 
-router.get('/favourite', function(req, res, next){
+router.get('/favourite', checkLogin, function(req, res, next){
     const name = req.session.user.name
     var postId
     var page = parseInt(req.query.page  || 1)

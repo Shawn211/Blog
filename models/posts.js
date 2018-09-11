@@ -1,6 +1,7 @@
 const marked = require('marked')
 const Post = require('../lib/mongo').Post
 const CommentModel = require('../models/comments')
+const FavouriteModel = require('../models/favourites')
 
 Post.plugin('addCommentsCount', {
     afterFind: function(posts){
@@ -39,6 +40,24 @@ Post.plugin('contentToHtml', {
     }
 })
 
+Post.plugin('addFavouritesCount', {
+    afterFind: function(posts){
+        return Promise.all(posts.map(function(post){
+            return FavouriteModel.getFavouritesCount(post._id).then(function(favouritesCount){
+                post.favouritesCount = favouritesCount
+                return post
+            })
+        }))
+    },
+
+    afterFindOne: function(post){
+        return FavouriteModel.getFavouritesCount(post._id).then(function(favouritesCount){
+            post.favouritesCount = favouritesCount
+            return post
+        })
+    }
+})
+
 module.exports = {
     create: function create(post){
         return Post.create(post).exec()
@@ -50,6 +69,7 @@ module.exports = {
             .populate({path: 'author', model: 'User'})
             .addCreatedAt()
             .addCommentsCount()
+            .addFavouritesCount()
             .contentToHtml()
             .exec()
     },
@@ -64,6 +84,7 @@ module.exports = {
             .sort({_id: -1})
             .addCreatedAt()
             .addCommentsCount()
+            .addFavouritesCount()
             .contentToHtml()
             .exec()
     },

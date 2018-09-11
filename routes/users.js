@@ -73,6 +73,13 @@ router.post('/:author/edit', checkLogin, function(req, res, next){
                     updatingUser._id = editUser._id
                     delete updatingUser.password
                     req.session.user = updatingUser
+                    // 若用户重新上传头像，则删除用户之前使用的头像
+                    if(req.files.avatar.name){
+                        unlinkPaths = req.files.avatar.path.split(path.sep)
+                        unlinkPaths.pop()
+                        unlinkPath = unlinkPaths.join(path.sep)
+                        fs.unlink(unlinkPath+path.sep+editUser.avatar, function(err){if(err) throw err})
+                    }
                     req.flash('success', '编辑资料成功')
                     res.redirect(`/posts?author=${author}`)
                 })

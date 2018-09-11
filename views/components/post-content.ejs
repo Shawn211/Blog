@@ -23,6 +23,7 @@
                 <div>
                     <span class="tag"><%= post.created_at %></span>
                     <span class="tag right">
+                        <span>收藏(<%= post.favouritesCount %>)</span>
                         <span>浏览(<%= post.pv || 0 %>)</span>
                         <span>留言(<%= post.commentsCount || 0 %>)</span>
 
