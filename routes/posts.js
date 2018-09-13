@@ -169,15 +169,21 @@ router.get('/favourite', checkLogin, function(req, res, next){
                     return res.redirect('/posts')
                 }
                 return res.redirect('back')
+            }else{
+                var postsOrder = []
+                for(var i=0; i<favourites.length; i++){
+                    postsOrder[i] = favourites[i].postId.toString()
+                }
             }
             let pages = Math.ceil(favourites.length/rows)
             favourites.forEach(function(favourite){
                 favouritePostsId.push(favourite.postId.toString())
+                posts = (new Array(favourites.length)).fill(0)
                 PostModel.getPostById(favourite.postId)
                     .then(function(post){
-                        posts.push(post)
+                        posts[postsOrder.indexOf(post._id.toString())] = post
                         // forEach 内异步操作可以利用判断是否执行完成再进行下一步操作
-                        if(posts.length === favourites.length){
+                        if(posts.indexOf(0) === -1){
                             res.render('posts', {
                                 posts: posts.slice((page-1)*rows, page*rows),
                                 pages: pages,
