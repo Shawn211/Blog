@@ -79,6 +79,27 @@ a:hover {
     float: right;
 }
 
+.post-content pre {
+    /* 保留空白符序列，但是正常地进行换行。 */
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    /* 限制 pre 高度，内容多了显示滚动条 */
+    overflow-y: auto;
+    max-height: 211px;
+}
+
+.post-content pre img {
+    width: 21%;
+}
+
+.a.post-content .post-content pre {
+    max-height: max-content;
+}
+
+.a.post-content .post-content pre img {
+    width: 100%;
+}
+
 .post-content .tag {
     font-size: 13px;
     margin-right: 5px;
