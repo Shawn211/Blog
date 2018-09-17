@@ -11,27 +11,30 @@
     </div>
 
     <div class="eight wide column">
-        <form class="ui form segment" method="post">
-            <div class="field required">
-                <label>标题</label>
-                <input type="text" name="title">
-            </div>
+        <div class="post-editing">
+            <form class="ui form segment" method="post">
+                <div class="field required">
+                    <label>标题</label>
+                    <input type="text" name="title">
+                </div>
 
-            <div class="field required">
-                <label>隐私设置</label>
-                <select class="ui compact selection dropdown" name="hide">
-                    <option value="1">个人</option>
-                    <option value="0">公开</option>
-                </select>
-            </div>
+                <div class="field required">
+                    <label>隐私设置</label>
+                    <select class="ui compact selection dropdown" name="hide">
+                        <option value="1">个人</option>
+                        <option value="0">公开</option>
+                    </select>
+                </div>
 
-            <div class="field required">
-                <label>内容</label>
-                <textarea name="content" rows="15"></textarea>
-            </div>
+                <div class="field required">
+                    <label>内容</label>
+                    <textarea name="content" rows="15"></textarea>
+                </div>
 
-            <input type="submit" class="ui button" value="发布">
-        </form>
+                <a class="ui icon button" name="upload"><input type="file">上传图片</a>
+                <input type="submit" class="ui button" value="发布">
+            </form>
+        </div>
     </div>
 </div>
 

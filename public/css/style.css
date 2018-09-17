@@ -155,3 +155,19 @@ a:hover {
 .myavatar a {
     color: #fff !important;
 }
+
+/* ---------- post-editing ---------- */
+
+.post-editing a {
+    float: right;
+    position: relative;
+}
+
+.post-editing a input {
+    opacity: 0;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
