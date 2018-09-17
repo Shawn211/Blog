@@ -89,7 +89,8 @@ a:hover {
 }
 
 .post-content pre img {
-    width: 21%;
+    width: auto;
+    max-width: 21%;
 }
 
 .a.post-content .post-content pre {
@@ -97,7 +98,8 @@ a:hover {
 }
 
 .a.post-content .post-content pre img {
-    width: 100%;
+    width: auto;
+    max-width: 100%;
 }
 
 .post-content .tag {
