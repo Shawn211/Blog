@@ -31,6 +31,9 @@ app.use(session({
 // flash 中间件，用来显示通知
 app.use(flash())
 
+// 文件上传路由单独配置到 app 上，使其不被下面的 express-formidable 处理表单上传，自定义文件上传路径
+app.use('/upload', require('./routes/upload'))
+
 // 处理表单及文件上传的中间件
 // 使用 express-formidable 处理表单的上传，表单普通字段挂载到 req.fields 上，表单上传后的文件挂载到 req.files 上
 app.use(require('express-formidable')({
