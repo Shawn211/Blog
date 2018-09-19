@@ -9,19 +9,32 @@ module.exports = {
         return Favourite.deleteOne({_id: favouriteId}).exec()
     },
 
-    getFavourites: function getFavourites(name, postId){
+    getFavourites: function getFavourites(name, postId, flt){
         const query = {}
         if(name){query.name = name}
         if(postId){query.postId = postId}
+        if(!flt){
+            return Favourite
+                .find(query)
+                .populate({path: 'author', model: 'User'})
+                .sort({_id: -1})
+                .addCreatedAt()
+                .exec()
+        }
         return Favourite
             .find(query)
+            .skip((flt.page-1)*flt.rows)
+            .limit(flt.rows)
             .populate({path: 'author', model: 'User'})
             .sort({_id: -1})
             .addCreatedAt()
             .exec()
     },
 
-    getFavouritesCount: function getFavouritesCount(postId){
-        return Favourite.count({postId: postId}).exec()
+    getFavouritesCount: function getFavouritesCount(name, postId){
+        const query = {}
+        if(name){query.name = name}
+        if(postId){query.postId = postId}
+        return Favourite.count(query).exec()
     }
 }

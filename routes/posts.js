@@ -14,18 +14,25 @@ router.get('/', function(req, res, next){
     let hide = false
     var favouritePostsId = []
     var postId
+    let flt = {
+        page: page,
+        rows: rows
+    }
     if(author){
         if(req.session.user && req.session.user._id.toString() === author.toString()){
             hide = true
         }
         UserModel.getUserById(author)
             .then(function(user){
-                PostModel.getPosts(author, hide)
-                    .then(function(posts){
-                        var pages = Math.ceil(posts.length/rows)
+                Promise.all([
+                    PostModel.getPosts(author, hide, flt),
+                    PostModel.getPostsCount(author, hide)
+                ])
+                    .then(function([posts, count]){
+                        var pages = Math.ceil(count/rows)
                         if(!req.session.user){
                             res.render('myposts', {
-                                posts: posts.slice((page-1)*rows, page*rows),
+                                posts: posts,
                                 pages: pages,
                                 page: page,
                                 rows: rows,
@@ -38,7 +45,7 @@ router.get('/', function(req, res, next){
                                 .then(function(favourites){
                                     if(favourites.length === 0){
                                         res.render('myposts', {
-                                            posts: posts.slice((page-1)*rows, page*rows),
+                                            posts: posts,
                                             pages: pages,
                                             page: page,
                                             rows: rows,
@@ -51,7 +58,7 @@ router.get('/', function(req, res, next){
                                             favouritePostsId.push(favourite.postId.toString())
                                             if(favouritePostsId.length === favourites.length){
                                                 res.render('myposts', {
-                                                    posts: posts.slice((page-1)*rows, page*rows),
+                                                    posts: posts,
                                                     pages: pages,
                                                     page: page,
                                                     rows: rows,
@@ -68,12 +75,15 @@ router.get('/', function(req, res, next){
                     .catch(next)
             })
     }else{
-        PostModel.getPosts(author, hide)
-            .then(function(posts){
-                var pages = Math.ceil(posts.length/rows)
+        Promise.all([
+            PostModel.getPosts(author, hide, flt),
+            PostModel.getPostsCount(author, hide)
+        ])
+            .then(function([posts, count]){
+                var pages = Math.ceil(count/rows)
                 if(!req.session.user){
                     res.render('posts', {
-                        posts: posts.slice((page-1)*rows, page*rows),
+                        posts: posts,
                         pages: pages,
                         page: page,
                         rows: rows,
@@ -85,7 +95,7 @@ router.get('/', function(req, res, next){
                         .then(function(favourites){
                             if(favourites.length === 0){
                                 res.render('posts', {
-                                    posts: posts.slice((page-1)*rows, page*rows),
+                                    posts: posts,
                                     pages: pages,
                                     page: page,
                                     rows: rows,
@@ -97,7 +107,7 @@ router.get('/', function(req, res, next){
                                     favouritePostsId.push(favourite.postId.toString())
                                     if(favouritePostsId.length === favourites.length){
                                         res.render('posts', {
-                                            posts: posts.slice((page-1)*rows, page*rows),
+                                            posts: posts,
                                             pages: pages,
                                             page: page,
                                             rows: rows,
@@ -159,9 +169,16 @@ router.get('/favourite', checkLogin, function(req, res, next){
     var rows = parseInt(req.query.rows || 10)
     let posts = []
     let favouritePostsId = []
+    let flt = {
+        page: page,
+        rows: rows
+    }
 
-    FavouriteModel.getFavourites(name, postId)
-        .then(function(favourites){
+    Promise.all([
+        FavouriteModel.getFavourites(name, postId, flt),
+        FavouriteModel.getFavouritesCount(name, postId)
+    ])
+        .then(function([favourites, count]){
             if(favourites.length === 0){
                 req.flash('error', '无收藏文章')
                 // 当无收藏文章时，会自动重定位回上一个页面，而上一个页面为收藏页面时，会陷入无限重定位
@@ -171,11 +188,11 @@ router.get('/favourite', checkLogin, function(req, res, next){
                 return res.redirect('back')
             }else{
                 var postsOrder = []
-                for(var i=0; i<favourites.length; i++){
+                for(var i=0; i<favourites.length&&i<10; i++){
                     postsOrder[i] = favourites[i].postId.toString()
                 }
             }
-            let pages = Math.ceil(favourites.length/rows)
+            let pages = Math.ceil(count/rows)
             favourites.forEach(function(favourite){
                 favouritePostsId.push(favourite.postId.toString())
                 posts = (new Array(favourites.length)).fill(0)
@@ -185,11 +202,11 @@ router.get('/favourite', checkLogin, function(req, res, next){
                         // forEach 内异步操作可以利用判断是否执行完成再进行下一步操作
                         if(posts.indexOf(0) === -1){
                             res.render('posts', {
-                                posts: posts.slice((page-1)*rows, page*rows),
+                                posts: posts,
                                 pages: pages,
                                 page: page,
                                 rows: rows,
-                                type: 'favourite',
+                                type: 'posts/favourite',
                                 favouritePostsId: favouritePostsId
                             })
                         }
@@ -222,7 +239,7 @@ router.get('/favourite', checkLogin, function(req, res, next){
     //                             pages: pages,
     //                             page: page,
     //                             rows: rows,
-    //                             type: 'favourite'
+    //                             type: 'posts/favourite'
     //                         })
     //                     }
     //                 })

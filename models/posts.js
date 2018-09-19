@@ -43,7 +43,8 @@ Post.plugin('contentToHtml', {
 Post.plugin('addFavouritesCount', {
     afterFind: function(posts){
         return Promise.all(posts.map(function(post){
-            return FavouriteModel.getFavouritesCount(post._id).then(function(favouritesCount){
+            let name
+            return FavouriteModel.getFavouritesCount(name, post._id).then(function(favouritesCount){
                 post.favouritesCount = favouritesCount
                 return post
             })
@@ -51,7 +52,8 @@ Post.plugin('addFavouritesCount', {
     },
 
     afterFindOne: function(post){
-        return FavouriteModel.getFavouritesCount(post._id).then(function(favouritesCount){
+        let name
+        return FavouriteModel.getFavouritesCount(name, post._id).then(function(favouritesCount){
             post.favouritesCount = favouritesCount
             return post
         })
@@ -74,12 +76,14 @@ module.exports = {
             .exec()
     },
 
-    getPosts: function getPosts(author, hide){
+    getPosts: function getPosts(author, hide, flt){
         const query = {}
         if(author){query.author = author}
         if(!hide){query.hide = 0}
         return Post
             .find(query)
+            .skip((flt.page-1)*flt.rows)
+            .limit(flt.rows)
             .populate({path: 'author', model: 'User'})
             .sort({_id: -1})
             .addCreatedAt()
@@ -114,5 +118,12 @@ module.exports = {
                     return CommentModel.delCommentsByPostId(postId)
                 }
             })
+    },
+
+    getPostsCount: function getPostsCount(author, hide){
+        const query = {}
+        if(author){query.author = author}
+        if(!hide){query.hide = 0}
+        return Post.count(query).exec()
     }
 }
