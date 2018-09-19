@@ -12,7 +12,38 @@
 
     <div class="eight wide column">
         <div class="post-editing">
-            <form class="ui form segment" method="post" action="/posts/<%= post._id %>/edit">
+            <script>
+                $(function(){
+                    var fileInput = document.getElementById('upload')
+                    fileInput.addEventListener('change', function(){
+                        if(!fileInput.value){
+                            return;
+                        }
+                        var file = fileInput.files[0]
+                        if(file.type !== 'image/jpeg' && file.type !== 'image/png' && file.type !== 'image/gif'){
+                            alert('请选择 JPEG 、 PNG 或 GIF 图片！')
+                            return;
+                        }
+                        var formData = new FormData()
+                        formData.append('file', file)
+                        $.ajax({
+                            url: '/upload',
+                            type: 'POST',
+                            data: formData,
+                            cache: false,
+                            contentType: false,
+                            processData: false,
+                            success: function(data){
+                                if(200 === data.code){
+                                    $('textarea').val($('textarea').val() + data.link)
+                                }
+                            }
+                        })
+                    })
+                })
+            </script>
+                
+            <form class="ui form segment" method="post" action="/posts/<%= post._id %>/edit" enctype="multipart/form-data">
                 <div class="field required">
                     <label>标题</label>
                     <input type="text" name="title" value="<%= post.title %>">
@@ -31,7 +62,7 @@
                     <textarea name="content" rows="15"><%= post.content %></textarea>
                 </div>
     
-                <a class="ui icon button" name="upload"><input type="file">上传图片</a>
+                <a class="ui icon button" name="upload"><input type="file" id="upload">上传图片</a>
                 <input type="submit" class="ui button" value="发布">
             </form>
         </div>
