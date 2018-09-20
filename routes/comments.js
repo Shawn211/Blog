@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 const checkLogin = require('../middlewares/check').checkLogin
+const PostModel = require('../models/posts')
 const CommentModel = require('../models/comments')
 
 router.post('/', checkLogin, function(req, res, next){
@@ -24,7 +25,10 @@ router.post('/', checkLogin, function(req, res, next){
         content: content
     }
 
-    CommentModel.create(comment)
+    Promise.all([
+        CommentModel.create(comment),
+        PostModel.incCommentsCount(postId)
+    ])
         .then(function(){
             req.flash('success', '留言成功')
             res.redirect('back')
@@ -44,7 +48,10 @@ router.get('/:commentId/remove', checkLogin, function(req, res, next){
             if(comment.author.toString() !== author.toString()){
                 throw new Error('没有权限删除留言')
             }
-            CommentModel.delCommentById(commentId)
+            Promise.all([
+                CommentModel.delCommentById(commentId),
+                PostModel.decCommentsCount(comment.postId)
+            ])
                 .then(function(){
                     req.flash('success', '删除留言成功')
                     res.redirect('back')

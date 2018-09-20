@@ -16,7 +16,6 @@ module.exports = {
         if(!flt){
             return Favourite
                 .find(query)
-                .populate({path: 'author', model: 'User'})
                 .sort({_id: -1})
                 .addCreatedAt()
                 .exec()
@@ -25,7 +24,6 @@ module.exports = {
             .find(query)
             .skip((flt.page-1)*flt.rows)
             .limit(flt.rows)
-            .populate({path: 'author', model: 'User'})
             .sort({_id: -1})
             .addCreatedAt()
             .exec()

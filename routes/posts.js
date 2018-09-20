@@ -417,14 +417,20 @@ router.get('/:postId/favour', checkLogin, function(req, res, next){
                     name: name,
                     postId: postId
                 }
-                FavouriteModel.create(favourite)
+                Promise.all([
+                    FavouriteModel.create(favourite),
+                    PostModel.incFavouritesCount(postId)
+                ])
                     .then(function(){
                         req.flash('success', '收藏成功')
                         res.redirect('back')
                     })
                     .catch(next)
             }else{
-                FavouriteModel.delFavouriteById(favourites[0]._id)
+                Promise.all([
+                    FavouriteModel.delFavouriteById(favourites[0]._id),
+                    PostModel.decFavouritesCount(postId)
+                ])
                     .then(function(){
                         req.flash('success', '取消收藏')
                         res.redirect('back')
