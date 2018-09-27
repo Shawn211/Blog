@@ -75,6 +75,16 @@ module.exports = {
             .exec()
     },
 
+    getPostByIdList: function getPostByIdList(postIdList){
+        return Post
+            .find({'_id': {'$in': postIdList}})
+            .populate({path: 'author', model: 'User'})
+            .sort({_id: -1})
+            .addCreatedAt()
+            .contentToHtml()
+            .exec()
+    },
+
     getPosts: function getPosts(author, hide, flt){
         const query = {}
         if(author){query.author = author}

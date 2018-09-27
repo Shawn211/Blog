@@ -167,7 +167,6 @@ router.get('/favourite', checkLogin, function(req, res, next){
     var postId
     var page = parseInt(req.query.page  || 1)
     var rows = parseInt(req.query.rows || 10)
-    let posts = []
     let favouritePostsId = []
     let flt = {
         page: page,
@@ -186,21 +185,14 @@ router.get('/favourite', checkLogin, function(req, res, next){
                     return res.redirect('/posts')
                 }
                 return res.redirect('back')
-            }else{
-                var postsOrder = []
-                for(var i=0; i<favourites.length&&i<10; i++){
-                    postsOrder[i] = favourites[i].postId.toString()
-                }
             }
             let pages = Math.ceil(count/rows)
             favourites.forEach(function(favourite){
                 favouritePostsId.push(favourite.postId.toString())
-                posts = (new Array(favourites.length)).fill(0)
-                PostModel.getPostById(favourite.postId)
-                    .then(function(post){
-                        posts[postsOrder.indexOf(post._id.toString())] = post
-                        // forEach 内异步操作可以利用判断是否执行完成再进行下一步操作
-                        if(posts.indexOf(0) === -1){
+                if(favouritePostsId.length === favourites.length){
+                    PostModel.getPostByIdList(favouritePostsId)
+                        .then(function(posts){
+                            favouritePostsId = favouritePostsId.map(function(postId){return postId.toString()})
                             res.render('posts', {
                                 posts: posts,
                                 pages: pages,
@@ -209,9 +201,8 @@ router.get('/favourite', checkLogin, function(req, res, next){
                                 type: 'posts/favourite',
                                 favouritePostsId: favouritePostsId
                             })
-                        }
-                    })
-                    .catch(next)
+                        })
+                        .catch(next)}
             })
         })
 
