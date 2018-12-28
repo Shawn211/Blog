@@ -38,6 +38,6 @@ module.exports = {
     },
 
     getCommentsCount: function getCommentsCount(postId){
-        return Comment.count({postId: postId}).exec()
+        return Comment.countDocuments({postId: postId}).exec()
     }
 }

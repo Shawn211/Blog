@@ -155,6 +155,6 @@ module.exports = {
         const query = {}
         if(author){query.author = author}
         if(!hide){query.hide = 0}
-        return Post.count(query).exec()
+        return Post.countDocuments(query).exec()
     }
 }

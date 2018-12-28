@@ -33,6 +33,6 @@ module.exports = {
         const query = {}
         if(name){query.name = name}
         if(postId){query.postId = postId}
-        return Favourite.count(query).exec()
+        return Favourite.countDocuments(query).exec()
     }
 }
