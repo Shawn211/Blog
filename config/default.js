@@ -1,9 +1,17 @@
-module.exports = {
-    port: 8888,
-    session: {
-        secret: 'unblog',
-        key: 'unblog',
-        maxAge: 2592000000
-    },
-    mongodb: 'mongodb://localhost:27017/unblog'
+'use strict'
+
+let config = {
+    project: {
+        name: 'Unblog'
+    }
 }
+
+if (process.env.NODE_ENV === 'production') {
+    config = Object.assign(config, require('./production.js'))
+} else if (process.env.NODE_ENV === 'development') {
+    config = Object.assign(config, require('./development.js'))
+} else {
+    config = Object.assign(config, require('./development.js'))
+}
+
+module.exports = config
