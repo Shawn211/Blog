@@ -1,3 +1,4 @@
+const os = require('os')
 const path = require('path')
 const express = require('express')
 const session = require('express-session')
@@ -8,6 +9,7 @@ const routes = require('./routes')
 const pkg = require('./package')
 const winston = require('winston')
 const expressWinston = require('express-winston')
+const colors = require('colors')
 
 const app = express()
 
@@ -97,5 +99,20 @@ app.use(function(err, req, res, next){
 
 // 监听端口，启动程序
 app.listen(config.port, function(){
-    console.log(`${pkg.name} listening on port ${config.port}`)
+    let numCPUs = os.cpus().length
+    let serverBanner = [
+        '*************************************' + ' EXPRESS SERVER '.yellow + '********************************************',
+        '*',
+        '* @cpus: '+numCPUs,
+        '* ' + pkg.description ,
+        '* @version ' + pkg.version,
+        '* @author ' + pkg.author,
+        '* @copyright ' + new Date().getFullYear() + ' ' + pkg.author,
+        '* @license ' + pkg.license,
+        '*',
+        '* ' + pkg.name.blue + ' started on port: '.blue + config.port + ' - with environment: '.blue + config.environment.blue,
+        '*',
+        '*************************************************************************************************'
+    ].join('\n')
+    console.info(serverBanner)
 })
